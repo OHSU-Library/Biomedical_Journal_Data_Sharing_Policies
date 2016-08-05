@@ -1,0 +1,28 @@
+"Rubric adapted from:  Stodden V, Guo P, Ma Z (2013) Toward Reproducible Computational Research: An Empirical Analysis of Data and Code Policy Adoption by Journals. PLoS ONE 8(6): e67111. doi:10.1371/journal.pone.0067111",,,
+Data Sharing Mark ,,"Protein, Proteomic, Genomic Data Sharing Required with Deposit to Specific Data Banks",
+1,"Required as condition of publication, barring exceptions",a,Yes
+2,"Required but, no explicit statement regarding effect on publication/editorial decisions",b,No
+3,"Explicitly encouraged/addressed, but not required.",,
+4,"Mentioned indirectly
+",Recommended Sharing Method,
+5,"Only protein, proteomic, and/or genomic data sharing are addressed.",A,Public Online Repository
+6,No mention,B,Journal Hosted
+,,C,By Reader Request to Authors
+"Journal Access Mark (Whole Journal Model, Does Not Consider Hybrid Publishing)",,D,Multiple methods equally recommended
+1,Open access,E,Unspecified
+0,Subscription,If Journal Hosted,
+,,a,Journal will host regardless of size
+,,b,Journal has data hosting file/s size limit
+,,c,Unspecified
+,,,
+,,Copyright/Licensing of Data,
+,,a,explicitly stated or mentioned
+,,b,no mention
+,,,
+,,Archival/Retention Policy (Statement about how long the data should be retained).,
+,,a ,explicitly stated
+,,b,no mention
+,,,
+,,Reproducibility or Analogous Concepts Noted as Purpose of Data Policy,
+,,a,explicitly stated
+,,b,no mention
