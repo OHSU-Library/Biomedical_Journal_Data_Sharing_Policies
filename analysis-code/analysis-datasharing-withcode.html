@@ -155,11 +155,9 @@ $(document).ready(function () {
 <h1>Data Processing</h1>
 <p>Here we read in the data and do some name and format manipulation.</p>
 <pre class="r"><code># read journal data
-exceldat &lt;- read_excel(&quot;Data-Sharing-Policies_2016-08-05.xlsx&quot;, sheet = &quot;Data&quot;,
+exceldat &lt;- read_excel(&quot;../Data-Sharing-Policies_2016-08-05.xlsx&quot;, sheet = &quot;Data&quot;,
                     na = &quot;N/A&quot;)
 jdata &lt;- exceldat[-1,] # remove line of info
-#write_tsv(jdata,&quot;analysisdata.tsv&quot;)
-#jdata &lt;- read_tsv(&quot;analysisdata.tsv&quot;)
 jdata &lt;- jdata[-which(is.na(jdata$Journal)),] # remove NAs
 
 # add labels for DSM

@@ -11,11 +11,9 @@ Here we read in the data and do some name and format manipulation.
 
 ```r
 # read journal data
-exceldat <- read_excel("Data-Sharing-Policies_2016-08-05.xlsx", sheet = "Data",
+exceldat <- read_excel("../Data-Sharing-Policies_2016-08-05.xlsx", sheet = "Data",
                     na = "N/A")
 jdata <- exceldat[-1,] # remove line of info
-#write_tsv(jdata,"analysisdata.tsv")
-#jdata <- read_tsv("analysisdata.tsv")
 jdata <- jdata[-which(is.na(jdata$Journal)),] # remove NAs
 
 # add labels for DSM
@@ -175,14 +173,14 @@ ggplot(jdata_long, aes(impact_factor, fill = year)) + geom_density(alpha = 0.4) 
     theme_minimal() + xlab("Impact Factor") + ggtitle("Density of IF by Year")
 ```
 
-![](analysis-datasharing-withcode_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+![](analysis-datasharing-withcode_files/figure-html/density_if-1.png)<!-- -->
 
 ```r
 ggplot(jdata_long, aes(impact_factor, fill = year)) + geom_histogram(alpha = 0.4, 
     bins = 40) + theme_minimal() + xlab("Impact Factor") + ggtitle("Histogram of IF by Year")
 ```
 
-![](analysis-datasharing-withcode_files/figure-html/unnamed-chunk-5-2.png)<!-- -->
+![](analysis-datasharing-withcode_files/figure-html/density_if-2.png)<!-- -->
 
 ```r
 # check normality of log
@@ -190,14 +188,14 @@ ggplot(jdata_long, aes(log(impact_factor), fill = year)) + geom_density(alpha = 
     theme_minimal() + xlab("log(IF)") + ggtitle("Density of log(IF) by Year")
 ```
 
-![](analysis-datasharing-withcode_files/figure-html/unnamed-chunk-5-3.png)<!-- -->
+![](analysis-datasharing-withcode_files/figure-html/density_if-3.png)<!-- -->
 
 ```r
 ggplot(jdata_long, aes(log(impact_factor), fill = year)) + geom_histogram(alpha = 0.4, 
     bins = 40) + theme_minimal() + xlab("Impact Factor") + ggtitle("Histogram of log(IF) by Year")
 ```
 
-![](analysis-datasharing-withcode_files/figure-html/unnamed-chunk-5-4.png)<!-- -->
+![](analysis-datasharing-withcode_files/figure-html/density_if-4.png)<!-- -->
 
 We can also test the Normality assumption with the Shapiro Wilk's Test. We can test IF by year, as well as log(IF). We can also test within each DSM group since the main assumption for ANOVA is that the outcome (IF) is normal within each group.
 

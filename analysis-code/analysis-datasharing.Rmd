@@ -31,7 +31,7 @@ Here we read in the data and do some name and format manipulation.
 
 ```{r data}
 # read journal data
-exceldat <- read_excel("Data-Sharing-Policies_2016-08-05.xlsx", sheet = "Data",
+exceldat <- read_excel("../Data-Sharing-Policies_2016-08-05.xlsx", sheet = "Data",
                     na = "N/A")
 jdata <- exceldat[-1,] # remove line of info
 jdata <- jdata[-which(is.na(jdata$Journal)),] # remove NAs
@@ -123,7 +123,7 @@ with(jdata,table(dsm2_fac,oam_fac))%>%kable()
 
 First we must determine whether IF or some transformation of IF is normally distributed. We can visually assess this by plotting histograms and density plots.
 
-```{r}
+```{r density_if}
 
 # check normality
 

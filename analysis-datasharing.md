@@ -82,7 +82,7 @@ Required                  56            11
 
 First we must determine whether IF or some transformation of IF is normally distributed. We can visually assess this by plotting histograms and density plots.
 
-![](analysis-datasharing_files/figure-html/unnamed-chunk-5-1.png)<!-- -->![](analysis-datasharing_files/figure-html/unnamed-chunk-5-2.png)<!-- -->![](analysis-datasharing_files/figure-html/unnamed-chunk-5-3.png)<!-- -->![](analysis-datasharing_files/figure-html/unnamed-chunk-5-4.png)<!-- -->
+![](../analysis-datasharing_files/figure-html/density_if-1.png)<!-- -->![](../analysis-datasharing_files/figure-html/density_if-2.png)<!-- -->![](../analysis-datasharing_files/figure-html/density_if-3.png)<!-- -->![](../analysis-datasharing_files/figure-html/density_if-4.png)<!-- -->
 
 We can also test the Normality assumption with the Shapiro Wilk's Test. We can test IF by year, as well as log(IF). We can also test within each DSM group since the main assumption for ANOVA is that the outcome (IF) is normal within each group.
 
@@ -139,7 +139,7 @@ We can also visualize the distribution with a boxplot of IF by DSM type.
 
 *Boxplot description*: The lower and upper "hinges" correspond to the first and third quartiles (the 25th and 75th percentiles). The upper whisker extends from the hinge to the highest value that is within 1.5 * IQR of the hinge, where IQR is the inter-quartile range, or distance between the first and third quartiles. The lower whisker extends from the hinge to the lowest value within 1.5 * IQR of the hinge. Data beyond the end of the whiskers are outliers and plotted as points (as specified by Tukey). (from `geom_boxplot` help page in the R `ggplot2` package.)
 
-![](analysis-datasharing_files/figure-html/boxplot_if_dsm-1.png)<!-- -->
+![](../analysis-datasharing_files/figure-html/boxplot_if_dsm-1.png)<!-- -->
 
 Collapsing DSM into two categories:
 
@@ -151,7 +151,7 @@ Not Required   2014                   251     0.22      4.26        3.88    17.5
 Required       2013                    67     2.00      9.91        6.79    42.35              374          51520.22               17144           590324
 Required       2014                    67     1.82      9.72        7.05    41.46              748          55640.78               18098           617363
 
-![](analysis-datasharing_files/figure-html/boxplot_if_dsm_2cat-1.png)<!-- -->
+![](../analysis-datasharing_files/figure-html/boxplot_if_dsm_2cat-1.png)<!-- -->
 
 ## Analysis
 
