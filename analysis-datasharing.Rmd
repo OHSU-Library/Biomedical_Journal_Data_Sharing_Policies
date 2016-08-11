@@ -4,6 +4,7 @@ author: "Analysis by Jessica Minnier, OHSU; github:jminnier"
 date: \today
 output:
   html_document:
+    keep_md: yes
     theme: cerulean
     toc: yes
 params:
@@ -14,7 +15,6 @@ params:
 library(dplyr)
 library(ggplot2)
 library(tidyr)
-#library(readr)
 library(reshape2)
 library(stringr)
 library(knitr)
@@ -34,8 +34,6 @@ Here we read in the data and do some name and format manipulation.
 exceldat <- read_excel("Data-Sharing-Policies_2016-08-05.xlsx", sheet = "Data",
                     na = "N/A")
 jdata <- exceldat[-1,] # remove line of info
-#write_tsv(jdata,"analysisdata.tsv")
-#jdata <- read_tsv("analysisdata.tsv")
 jdata <- jdata[-which(is.na(jdata$Journal)),] # remove NAs
 
 # add labels for DSM
