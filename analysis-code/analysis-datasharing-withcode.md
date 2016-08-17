@@ -1021,13 +1021,13 @@ devtools::session_info()
 
 ```
 ##  setting  value                       
-##  version  R version 3.2.1 (2015-06-18)
-##  system   x86_64, darwin10.8.0        
+##  version  R version 3.2.2 (2015-08-14)
+##  system   x86_64, darwin13.4.0        
 ##  ui       RStudio (0.99.903)          
 ##  language (EN)                        
 ##  collate  en_US.UTF-8                 
-##  tz       America/Los_Angeles         
-##  date     2016-08-11                  
+##  tz       US/Pacific                  
+##  date     2016-08-16                  
 ## 
 ##  package    * version date       source        
 ##  assertthat   0.1     2013-12-06 CRAN (R 3.2.0)
@@ -1035,7 +1035,7 @@ devtools::session_info()
 ##  colorspace   1.2-6   2015-03-11 CRAN (R 3.2.0)
 ##  DBI          0.4-1   2016-05-08 CRAN (R 3.2.5)
 ##  devtools     1.12.0  2016-06-24 CRAN (R 3.2.5)
-##  digest       0.6.10  2016-08-02 CRAN (R 3.2.5)
+##  digest       0.6.9   2016-01-08 CRAN (R 3.2.2)
 ##  dplyr      * 0.5.0   2016-06-24 CRAN (R 3.2.5)
 ##  evaluate     0.9     2016-04-29 CRAN (R 3.2.5)
 ##  formatR      1.4     2016-05-09 CRAN (R 3.2.5)
@@ -1045,22 +1045,20 @@ devtools::session_info()
 ##  htmltools    0.3.5   2016-03-21 CRAN (R 3.2.4)
 ##  knitr      * 1.13    2016-05-09 CRAN (R 3.2.5)
 ##  labeling     0.3     2014-08-23 CRAN (R 3.2.0)
-##  lattice      0.20-33 2015-07-14 CRAN (R 3.2.1)
+##  lattice      0.20-33 2015-07-14 CRAN (R 3.2.2)
 ##  lazyeval     0.2.0   2016-06-12 CRAN (R 3.2.5)
 ##  magrittr     1.5     2014-11-22 CRAN (R 3.2.0)
 ##  memoise      1.0.0   2016-01-29 CRAN (R 3.2.3)
 ##  mnormt       1.5-4   2016-03-09 CRAN (R 3.2.4)
 ##  munsell      0.4.3   2016-02-13 CRAN (R 3.2.3)
 ##  nlme         3.1-128 2016-05-10 CRAN (R 3.2.5)
-##  pander     * 0.6.0   2015-11-23 CRAN (R 3.2.3)
+##  pander     * 0.6.0   2015-11-23 CRAN (R 3.2.2)
 ##  plyr         1.8.4   2016-06-08 CRAN (R 3.2.5)
-##  psych        1.6.6   2016-06-28 CRAN (R 3.2.5)
+##  psych        1.6.6   2016-06-28 CRAN (R 3.2.2)
 ##  R6           2.1.2   2016-01-26 CRAN (R 3.2.3)
-##  Rcpp         0.12.6  2016-07-19 CRAN (R 3.2.5)
-##  readr      * 1.0.0   2016-08-03 CRAN (R 3.2.1)
+##  Rcpp         0.12.5  2016-05-14 CRAN (R 3.2.5)
 ##  readxl     * 0.1.1   2016-03-28 CRAN (R 3.2.4)
 ##  reshape2   * 1.4.1   2014-12-06 CRAN (R 3.2.0)
-##  rJava      * 0.9-8   2016-01-07 CRAN (R 3.2.3)
 ##  rmarkdown    1.0     2016-07-08 CRAN (R 3.2.5)
 ##  rsconnect    0.4.3   2016-05-02 CRAN (R 3.2.5)
 ##  rstudioapi   0.6     2016-06-27 CRAN (R 3.2.5)
@@ -1070,7 +1068,5 @@ devtools::session_info()
 ##  tibble       1.1     2016-07-04 CRAN (R 3.2.5)
 ##  tidyr      * 0.5.1   2016-06-14 CRAN (R 3.2.5)
 ##  withr        1.0.2   2016-06-20 CRAN (R 3.2.5)
-##  xlsx       * 0.5.7   2014-08-02 CRAN (R 3.2.0)
-##  xlsxjars   * 0.6.1   2014-08-22 CRAN (R 3.2.0)
 ##  yaml         2.1.13  2014-06-12 CRAN (R 3.2.0)
 ```

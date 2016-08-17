@@ -3,9 +3,9 @@
 ## ============================================================================ ##
 
 rmarkdown::render("analysis-code/analysis-datasharing.Rmd",
-                  output_file = "../analysis-datasharing.html",
+                  output_file = "../analysis-datasharing.html", # this is relative to the markdown file
                   params = list(showcode=FALSE))
 
 rmarkdown::render("analysis-code/analysis-datasharing.Rmd",
-                  output_file = "analysis-datasharing-withcode.html",
+                  output_file = "analysis-datasharing-withcode.html",  # this is relative to the markdown file
                   params = list(showcode=TRUE))
