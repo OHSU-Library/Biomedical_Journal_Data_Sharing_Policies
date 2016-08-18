@@ -16,6 +16,7 @@ list.of.packages <- c("broom","devtools","dplyr","ggplot2",
                       "tibble","tidyr","reshape2","stringr","knitr","pander","readxl")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
+# install.packages(list.of.packages) # run this if some packages are too old and cause errors
 # from http://stackoverflow.com/questions/4090169/elegant-way-to-check-for-missing-packages-and-install-them
 
 library(dplyr)
