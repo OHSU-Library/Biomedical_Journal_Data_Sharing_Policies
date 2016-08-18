@@ -13,7 +13,7 @@ params:
 
 ```{r setup, include=FALSE}
 list.of.packages <- c("broom","devtools","dplyr","ggplot2",
-                      "tidyr","reshape2","stringr","knitr","pander","readxl")
+                      "tibble","tidyr","reshape2","stringr","knitr","pander","readxl")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 # from http://stackoverflow.com/questions/4090169/elegant-way-to-check-for-missing-packages-and-install-them
