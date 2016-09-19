@@ -36,6 +36,8 @@ knitr::opts_chunk$set(echo = params$showcode,
 
 Here we read in the data and do some name and format manipulation.
 
+Note, the abbreviation DSM denotes "Data Sharing Mark" and OAM denotes "Open Access Mark."
+
 ```{r data}
 # read journal data
 exceldat <- read_excel("../Data-Sharing-Policies_2016-08-05.xlsx", sheet = "Data",
@@ -114,12 +116,17 @@ jdata%>%group_by(dsm_fac)%>%summarize("N"=n())%>%rename("DSM"=dsm_fac)%>%kable
 jdata%>%group_by(oam_fac)%>%summarize("N"=n())%>%rename("Open Access"=oam_fac)%>%kable
 ```
 
-### Table of DSM by Open Access
+### TABLE X: DSM by Open Access
 
 Open Access Mark (OAM) has two categories, Subscription and Open Access.
 
-```{r}
-with(jdata,table(dsm_fac,oam_fac))%>%kable()
+```{r, results='asis'}
+tmptable = with(jdata,table(dsm_fac,oam_fac))
+tmptable = cbind(tmptable,"Total DSM"=rowSums(tmptable))
+tmptable = rbind(tmptable,"Total OAM"=colSums(tmptable))
+emphasize.strong.rows(nrow(tmptable))
+emphasize.strong.cols(ncol(tmptable))
+pandoc.table(tmptable,style="multiline",split.table=Inf)
 ```
 
 ### Table of 2 category DSM by Open Access
@@ -130,6 +137,60 @@ with(jdata,table(dsm2_fac,oam_fac))%>%kable()
 
 First we must determine whether IF or some transformation of IF is normally distributed. We can visually assess this by plotting histograms and density plots.
 
+### TABLE X: Distribution of Impact Factors for Journal Titles.
+
+Rows denote Impact Factor in 2013 and columns denote Impact Factor in 2014.
+
+```{r, results='asis'}
+jdata$if_2013_cat = cut(jdata$if_2013,breaks = c(0,2,4,6,8,10,30,43),
+                        include.lowest = TRUE,right = FALSE,
+                        labels = c("<2","2-3.99","4-5.99","6-7.99","8-9.99","10-29.99","30-43")
+)
+jdata$if_2014_cat = cut(jdata$if_2014,breaks = c(0,2,4,6,8,10,30,43),
+                        include.lowest = TRUE,right = FALSE,
+                        c("<2","2-3.99","4-5.99","6-7.99","8-9.99","10-29.99","30-43")
+)
+tmptable = with(jdata,table(if_2013_cat,if_2014_cat,useNA = "ifany"))
+colnames(tmptable)[ncol(tmptable)] = "Not Reported"
+names(dimnames(tmptable)) = c("IF 2013","IF 2014")
+
+tmptable = cbind(tmptable,rowSums(tmptable))
+tmptable = rbind(tmptable,colSums(tmptable))
+colnames(tmptable)[ncol(tmptable)] = "Total 2013"
+rownames(tmptable)[nrow(tmptable)] = "Total 2014"
+emphasize.strong.rows(nrow(tmptable))
+emphasize.strong.cols(ncol(tmptable))
+pandoc.table(tmptable,style="multiline",split.table=Inf)
+```
+
+
+### TABLE X: Distribution of Total Citable Items for Journal Titles.
+
+Rows denote Citable Items in 2013 and columns denote Citable Items in 2014.
+
+
+```{r}
+jdata$total_cites_2013_cat = cut(jdata$total_cites_2013,
+                                 breaks=c(0,1000,10000,100000,700000),
+                                 labels=c("<1000","1000-9999","10000-99999","100000-700000"))
+jdata$total_cites_2014_cat = cut(jdata$total_cites_2014,
+                                 breaks=c(0,1000,10000,100000,700000),
+                                 labels=c("<1000","1000-9999","10000-99999","100000-700000"))
+tmptable = with(jdata,table(total_cites_2013_cat,total_cites_2014_cat,useNA = "ifany"))
+
+colnames(tmptable)[ncol(tmptable)] = "Not Reported"
+names(dimnames(tmptable)) = c("IF 2013","IF 2014")
+
+tmptable = cbind(tmptable,rowSums(tmptable))
+tmptable = rbind(tmptable,colSums(tmptable))
+colnames(tmptable)[ncol(tmptable)] = "Total 2013"
+rownames(tmptable)[nrow(tmptable)] = "Total 2014"
+kable(tmptable)
+
+```
+
+
+### Distribution of Impact Factor - Normality Tests
 ```{r density_if}
 
 # check normality
