@@ -1,14 +1,15 @@
 ---
 title: "Data Sharing Policies - Analysis"
 author: "Analysis by Jessica Minnier, OHSU; github:jminnier"
-date: \today
+date: "\today"
 output:
+  word_document:
+    toc: yes
   html_document:
-    keep_md: yes
     theme: cerulean
     toc: yes
 params:
-  showcode: FALSE
+  showcode: no
 ---
 
 ```{r setup, include=FALSE}
@@ -55,6 +56,27 @@ dsm_labels = c(
   "No mention"
 )
 
+# Recommended Sharing Method
+rsm_labels = c(
+  "Public Online Repository", "Journal Hosted",
+  "By Reader Request to Authors","Multiple methods equally recommended",
+  "Unspecified"
+)
+
+journal_host_labels = c(
+  "Journal will host regardless of size",
+"Journal has data hosting file/s size limit","Unspecified"
+)
+
+# Fix typos:
+# One line has an end line character when should be 'b'
+jdata$`Copyright/Licensing Mark`[jdata$`Copyright/Licensing Mark`=="b\n"] = "b"
+jdata$`Reproducibility Noted Mark`[jdata$`Reproducibility Noted Mark`=="a\n"] = "a"
+# Space after an a
+jdata$`Archival/Retention Mark`[jdata$`Archival/Retention Mark`=="a "] = "a"
+jdata$`Protein, Proteomic, Genomic, or Microarray (Sequence or Structural) Data Sharing Addressed/Required with Deposit to Specific Data Banks`[jdata$`Protein, Proteomic, Genomic, or Microarray (Sequence or Structural) Data Sharing Addressed/Required with Deposit to Specific Data Banks`%in%c("a\n","a ")] = "a"
+jdata$`Protein, Proteomic, Genomic, or Microarray (Sequence or Structural) Data Sharing Addressed/Required with Deposit to Specific Data Banks`[jdata$`Protein, Proteomic, Genomic, or Microarray (Sequence or Structural) Data Sharing Addressed/Required with Deposit to Specific Data Banks`%in%c("b\n","b ")] = "b"
+
 # easier shorter names
 jdata <- jdata%>%mutate(
   citable_2013 = `2013 Citable Publications`,
@@ -73,7 +95,20 @@ jdata <- jdata%>%mutate(
   if_2013=`2013 Impact Factor`,
   if_2014=`2014 Impact Factor`,
   total_cites_2013 = `2013 Total Cites`,
-  total_cites_2014 = `2014 Total Cites`)
+  total_cites_2014 = `2014 Total Cites`,
+  omic_data_sharing_fac = factor(`Protein, Proteomic, Genomic, or Microarray (Sequence or Structural) Data Sharing Addressed/Required with Deposit to Specific Data Banks`,
+                                 levels=c("a","b"),
+                                 labels=c("Yes","No")),
+  rec_pref_sharing_fac = factor(`Recommended/Preferred Sharing Mark`,levels=c("A","B","C","D","E"),
+                   labels=rsm_labels),
+  journal_hosts_fac = factor(`Size Guidelines if Journal Hosted Provided`,levels=c("a","b","c"),labels=journal_host_labels),
+  copyright_licensing_fac = factor(`Copyright/Licensing Mark`,levels=c("a","b"),
+                                   labels=c("Explicitly stated or mentioned","No Mention")),
+  archival_retention_fac = factor(`Archival/Retention Mark`,levels=c("a","b"),
+                                  labels=c("Explicitly stated","No Mention")),
+  reproducibility_noted_fac = factor(`Reproducibility Noted Mark`,levels=c("a","b"),
+                                  labels=c("Explicitly stated","No Mention"))
+)
 
 # create long data for plotting and dplyr
 jdata_if_long  <- jdata%>%select(Journal,dsm:if_2014)%>%
@@ -124,8 +159,13 @@ Open Access Mark (OAM) has two categories, Subscription and Open Access.
 tmptable = with(jdata,table(dsm_fac,oam_fac))
 tmptable = cbind(tmptable,"Total DSM"=rowSums(tmptable))
 tmptable = rbind(tmptable,"Total OAM"=colSums(tmptable))
-emphasize.strong.rows(nrow(tmptable))
-emphasize.strong.cols(ncol(tmptable))
+tmptable = cbind(tmptable,"Percent DSM"=sprintf("%.1f",100*tmptable[,"Total DSM"]/sum(tmptable[-(nrow(tmptable)),"Total DSM"])))
+tmptable[nrow(tmptable),ncol(tmptable)] = ""
+tmptable = rbind(tmptable, "Percent OAM"=sprintf("%.1f",100*as.numeric(tmptable["Total OAM",])/sum(as.numeric(tmptable["Total OAM",-((ncol(tmptable)-1):ncol(tmptable))]))))
+tmptable[nrow(tmptable),(ncol(tmptable)-1):ncol(tmptable)] = ""
+
+emphasize.strong.rows((nrow(tmptable)-1):nrow(tmptable))
+emphasize.strong.cols((ncol(tmptable)-1):ncol(tmptable))
 pandoc.table(tmptable,style="multiline",split.table=Inf)
 ```
 
@@ -189,8 +229,58 @@ kable(tmptable)
 
 ```
 
+### TABLE X: Frequencies of Data Sharing Policies
+
+```{r}
+
+tmptable = data.frame(table(jdata$omic_data_sharing_fac,useNA="ifany"))
+colnames(tmptable) = c("Protein, Proteomic, Genomic Data Sharing Required with Deposit to Specific Data Banks","Number")
+tmptable$`Percent of Total` = sprintf("%.1f",100*tmptable[,2]/sum(tmptable[,2]),1)
+kable(tmptable)
+
+tmptable = data.frame(table(jdata$rec_pref_sharing_fac,useNA="ifany"))
+colnames(tmptable) = c("Recommended Sharing Method","Number")
+tmptable$`Percent of Total` = sprintf("%.1f",100*tmptable[,2]/sum(tmptable[,2]),1)
+kable(tmptable)
+
+tmptable = data.frame(table(jdata$journal_hosts_fac,useNA="ifany"))
+tmptable[,1] = as.character(tmptable[,1])
+colnames(tmptable) = c("Journal Hosting Limit","Number")
+tmptable[nrow(tmptable),1] ="N/A"
+tmptable$`Percent of Total` = round(100*tmptable[,2]/sum(tmptable[,2]),1)
+kable(tmptable)
+
+
+tmptable = data.frame(table(jdata$copyright_licensing_fac,useNA="ifany"))
+colnames(tmptable) = c("Copyright Licensing of Data","Number")
+tmptable$`Percent of Total` = sprintf("%.1f",100*tmptable[,2]/sum(tmptable[,2]),1)
+kable(tmptable)
+
+
+tmptable = data.frame(table(jdata$archival_retention_fac,useNA="ifany"))
+colnames(tmptable) = c("Archival Retention Policy","Number")
+tmptable$`Percent of Total` = sprintf("%.1f",100*tmptable[,2]/sum(tmptable[,2]),1)
+kable(tmptable)
+
+tmptable = data.frame(table(jdata$reproducibility_noted_fac,useNA="ifany"))
+colnames(tmptable) = c("Reproducibility or Analogous Concepts Noted as Purpose of Data Policy","Number")
+tmptable$`Percent of Total` = sprintf("%.1f",100*tmptable[,2]/sum(tmptable[,2]),1)
+kable(tmptable)
+
+```
+
+Journal Hosting by Recommended Sharing Policy
+
+```{r}
+
+tmptable = with(jdata,table(journal_hosts_fac,rec_pref_sharing_fac,useNA="ifany"))
+rownames(tmptable)[nrow(tmptable)] = "N/A"
+kable(tmptable)
+```
+
 
 ### Distribution of Impact Factor - Normality Tests
+
 ```{r density_if}
 
 # check normality
@@ -304,9 +394,26 @@ ggplot(jdata_long,aes(x=dsm2_fac_flip,y=impact_factor,fill=dsm2_fac_flip,alpha=y
 
 ## Analysis
 
-We performed a nonparametric Kruskal-Wallis one way analysis of variance (ANOVA) of IF in 2013 and 2014 with DSM as a grouping factor to test for the association of IF with DSM. The Kruskal-Wallis test is a nonparametric version of ANOVA that tests whether the distribution of IF varies between DSM groups. We then perform post-hoc pairwise two-sample Wilcoxon (aka Mann-Whitney) tests to determine whether the median IF for journals differ between two DSM categories. The pairwise Wilcoxon tests corrects for multiple comparisons with the Holm procedure.
 
-Note: The Wilcoxon test is testing the difference in medians between two groups when the distributions of the outcome (IF in this case) are the same. Based on the boxplots and densities the distributions do look similar within DSM group so we are comfortable making inferences on the medians.
+### Methods
+
+Continuous variables are summarized with medians and interquartile ranges (IQRs) denoting the 25th and 75th percentiles. Categorical variables are summarized with counts and percentages. Impact Factor is not normally distributed (Shapiro Wilk's Test p-values < 0.001) so nonparametric methods are used for statistical tests.
+
+The association of Impact Factor (IF) with 6-level data sharing mark (DSM) was tested with a nonparametric Kruskal-Wallis one-way analysis of variance (ANOVA) of IF in 2013 and 2014 with DSM as a grouping factor. Post-hoc pairwise two-sample Wilcoxon tests were used to determine whether the median IF for journals differ between the two level data sharing policy (required vs. not required) categories. P-values from the Wilcoxon tests were adjusted for multiple comparisons with the Holm procedure.
+
+Pearson's chi-square test was used to test the association of data sharing policy (two levels: required vs not required) and open access status. Fisher's Exact Test was used to test the association of the 6-level DSM with open access status. To examine the association of open access status and data sharing weighted by publishing volume we examined the number of citable items in each category and tested for the association of open access and data sharing with Pearson's chi-square test.
+
+All statistical analyses were performed with R 3.2.1. All code and data to reproduce these results can be found on github.
+
+
+
+Notes:
+
+- The Kruskal-Wallis test is a nonparametric version of ANOVA that tests whether the distribution of IF varies between DSM groups. 
+- The Wilcoxon test is testing the difference in medians between two groups when the distributions of the outcome (IF in this case) are the same. Based on the boxplots and densities the distributions do look similar within DSM group so we are comfortable making inferences on the medians.
+
+### Kruskal Wallis (nonparametric ANOVA) of IF results
+
 
 ```{r if_kruskal}
 k_if13 = with(jdata,kruskal.test(if_2013~dsm))
