@@ -1,7 +1,7 @@
 ---
 title: "Data Sharing Policies - Analysis"
 author: "Analysis by Jessica Minnier, OHSU; github:jminnier"
-date: "\today"
+date: \today
 output:
   html_document:
     number_sections: yes
