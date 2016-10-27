@@ -9,6 +9,8 @@ output:
     toc: yes
   word_document:
     toc: yes
+params:
+  showcode: TRUE
 ---
 
 ```{r setup, include=FALSE}
@@ -28,8 +30,9 @@ library(readxl)
 library(tidyverse)
 library(tableone)
 
-knitr::opts_chunk$set(echo = params$showcode,
-                      warning = FALSE,message = FALSE,tidy=TRUE)
+
+knitr::opts_chunk$set(echo = params$showcode, warning = FALSE,message = FALSE,tidy=TRUE)
+
 ```
 
 # Data Processing
