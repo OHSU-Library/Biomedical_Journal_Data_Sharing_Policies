@@ -8,7 +8,7 @@ The data is found in [Data-Sharing-Policies_2016-08-05.xlsx](Data-Sharing-Polici
 
 ## Analysis
 
-Analysis files are in the folder [analyis-code](analysis-code).
+Analysis files are in the folder [analysis-code](analysis-code).
 
 The **R code** for the analysis can be found in the R markdown file [analysis-code/analysis-datasharing.Rmd](analysis-code/analysis-datasharing.Rmd)
 
