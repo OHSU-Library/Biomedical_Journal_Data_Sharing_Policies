@@ -2,11 +2,11 @@
 
 Raw data and analysis of data sharing policies in over 300 journals.
 
-# Data
+## Data
 
 The data is found in [Data-Sharing-Policies_2016-08-05.xlsx](Data-Sharing-Policies_2016-08-05.xlsx).
 
-# Analysis
+## Analysis
 
 Analysis files are in the folder [analyis-code](analysis-code).
 
