@@ -1,4 +1,4 @@
-# Data Sharing Policies
+# Biomedical Journal Data Sharing Policies
 
 Raw data and analysis of data sharing policies in over 300 journals.
 
