@@ -17,3 +17,5 @@ Analysis files are in the folder [analysis-code](analysis-code). Use [raw git] (
 The **R code** for the analysis can be found in the R markdown file [analysis-code/analysis-datasharing.Rmd](analysis-code/analysis-datasharing.Rmd)
 
 You can view the **html output** of the analysis: [with code](https://rawgit.com/OHSU-Ontology-Development-Group/DataSharingPolicies/master/analysis-code/analysis-datasharing-withcode.html), and [without code](https://rawgit.com/OHSU-Ontology-Development-Group/DataSharingPolicies/master/analysis-code/analysis-datasharing.html).
+
+Both html reports can be reproduced by running the render-analysis-report.R file.
