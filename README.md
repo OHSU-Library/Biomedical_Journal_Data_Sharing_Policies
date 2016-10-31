@@ -10,7 +10,7 @@ We evaluated journals included in Thomson Reuter’s InCites 2013 Journal Citati
 
 ## Analysis
 
-Analysis files are in the folder [analysis-code](analysis-code).
+Analysis files are in the folder [analysis-code](analysis-code). Use raw git (https://rawgit.com/) to view HTML output files. 
 
 The **R code** for the analysis can be found in the R markdown file [analysis-code/analysis-datasharing.Rmd](analysis-code/analysis-datasharing.Rmd)
 
