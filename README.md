@@ -10,7 +10,7 @@ We evaluated journals included in Thomson Reuter’s InCites 2013 Journal Citati
 
 ## Analysis
 
-All statistical analyses were performed with R version 3.2.1 (RRID:SCR_001905.  
+All statistical analyses were performed with R version 3.2.1 (RRID:SCR_001905).  
 
 Analysis files are in the folder [analysis-code](analysis-code). Use raw git (https://rawgit.com/) to view HTML output files. 
 
