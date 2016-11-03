@@ -335,7 +335,7 @@ kable(tmpt)
 ```
 
 
-```{r barplot_pct,fig.width=9,fig.height=7}
+```{r barplot_pct,fig.width=9,fig.height=7,include=FALSE}
 # 2013
 tmp1 = jdata%>%group_by(dsm,dsm_fac)%>%
   summarize("N_journals"=n(),"Percent_journals"=100*n()/nrow(jdata),
@@ -405,7 +405,7 @@ ggplot(tmplong,aes(x=dsm,y=Percent,fill=dsm_fac,alpha=type2))+geom_bar(stat="ide
 ```
 
 
-```{r barplot_pct_stacked,fig.width=9,fig.height=7}
+```{r barplot_pct_stacked,fig.width=9,fig.height=7,include=FALSE}
 
 ggplot(tmplong,aes(x=type2,y=Percent,fill=dsm_fac))+geom_bar(stat="identity") +
   geom_text(aes(label=paste0(round(Percent,1),"%"),y=Percent),
@@ -712,7 +712,7 @@ tmppct = cbind(tmp[,1],100*tmp[,-1]/rowSums(tmp[,-1]))
 tmpn = tmp
 
 for(ii in 2:ncol(tmp)) {
-  tmp[,ii] = paste0(unlist(tmp[,ii])," (",round(tmppct[,ii],1),"%)")
+  tmp[,ii] = paste0(unlist(tmp[,ii]),"\n(",round(tmppct[,ii],1),"%)")
 }
 tmplonglab = tmp%>%gather(key=type,value=label,-dsm)
 
@@ -730,6 +730,9 @@ ggplot(tmplong,aes(dsm,type,fill=Percent))+geom_tile(show.legend=FALSE)+geom_tex
   theme_minimal()+ylab("")+xlab("Data Sharing Mark")+scale_fill_continuous(limits=c(0,100))
 
 ```
+
+
+
 ```{r}
 
 tmptable = data.frame(table(jdata$omic_data_sharing_fac,useNA="ifany"))
