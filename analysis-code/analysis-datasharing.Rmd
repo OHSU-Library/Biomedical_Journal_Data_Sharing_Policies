@@ -1,7 +1,7 @@
 ---
 title: "Data Sharing Policies - Analysis"
 author: "Analysis by Jessica Minnier, OHSU; github:jminnier"
-date: "\today"
+date: November 2, 2016
 output:
   html_document:
     number_sections: yes
@@ -31,7 +31,7 @@ library(tidyverse)
 library(tableone)
 
 
-knitr::opts_chunk$set(echo = params$showcode, warning = FALSE,message = FALSE,tidy=TRUE)
+knitr::opts_chunk$set(echo = params$showcode, warning = FALSE,message = FALSE,tidy=TRUE,fig.path = "figs/",fig.keep=TRUE)
 
 ```
 
