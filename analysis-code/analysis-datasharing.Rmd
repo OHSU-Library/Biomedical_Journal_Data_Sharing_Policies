@@ -388,6 +388,7 @@ tmplong = bind_rows(tmp_n,tmp_c)
 tmplong = tmplong%>%unite(type2,type,plos,sep=" ",remove = FALSE)
 tmplong$type2[tmplong$type=="Journal"] = "Journals"
 
+tmplong = tmplong
 tmplong = tmplong%>%filter(year=="2013") #similar by year
 tmplong$type2 = factor(tmplong$type2,levels=c("Journals","Citable Items with PLoS One","Citable Items without PLoS One"))
 
@@ -400,6 +401,31 @@ ggplot(tmplong,aes(x=dsm,y=Percent,fill=dsm_fac,alpha=type2))+geom_bar(stat="ide
 #  facet_grid(year~.)+
   scale_alpha_manual(values = c(0.4, 0.6,0.9))+
   theme_minimal()+xlab("Data Sharing Mark (1-6)")+xlim(as.character(1:6))+ theme(legend.position = "bottom")
+
+```
+
+
+```{r barplot_pct_stacked,fig.width=9,fig.height=7}
+
+ggplot(tmplong,aes(x=type2,y=Percent,fill=dsm_fac))+geom_bar(stat="identity") +
+  geom_text(aes(label=paste0(round(Percent,1),"%"),y=Percent),
+            #alpha=1,
+            position=position_stack(),vjust=1.4,size=3,color="black",show.legend = FALSE)+
+  guides(alpha=guide_legend(title="Percent of",ncol=1),
+         fill = guide_legend(title = "Data Sharing Mark", ncol = 1))+
+  theme_minimal()+xlab("")+theme(axis.text.x = element_text(angle = 45, hjust = .9))
+```
+
+```{r barplot_pct_stacked_horiz,fig.width=9,fig.height=5}
+tmplong$type1 = factor(tmplong$type2,levels=c("Citable Items without PLoS One","Citable Items with PLoS One","Journals"))
+
+ggplot(tmplong,aes(x=type1,y=Percent,fill=dsm_fac))+geom_bar(stat="identity") +
+  geom_text(aes(label=paste0(round(Percent,1),"%"),y=Percent),
+            #alpha=1,
+            position=position_stack(),hjust=1.2,size=3,color="black",show.legend = FALSE)+
+  guides(alpha=guide_legend(title="Percent of",ncol=1),
+         fill = guide_legend(title = "Data Sharing Mark", ncol = 1))+
+  theme_minimal()+xlab("")+coord_flip()+ theme(legend.position = "bottom")
   
 
 ```
