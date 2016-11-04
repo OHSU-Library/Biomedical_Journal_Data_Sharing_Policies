@@ -1,7 +1,7 @@
 ---
 title: "Data Sharing Policies - Analysis"
 author: "Analysis by Jessica Minnier, OHSU; github:jminnier"
-date: \today
+date: November 3, 2016
 output:
   html_document:
     number_sections: yes
@@ -10,7 +10,7 @@ output:
   word_document:
     toc: yes
 params:
-  showcode: TRUE
+  showcode: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -31,7 +31,7 @@ library(tidyverse)
 library(tableone)
 
 
-knitr::opts_chunk$set(echo = params$showcode, warning = FALSE,message = FALSE,tidy=TRUE)
+knitr::opts_chunk$set(echo = params$showcode, warning = FALSE,message = FALSE,tidy=TRUE,fig.path = "figs/",fig.keep=TRUE)
 
 ```
 
@@ -43,7 +43,7 @@ Note, the abbreviation DSM denotes "Data Sharing Mark" and OAM denotes "Open Acc
 
 ```{r data_process}
 # read journal data
-exceldat <- read_excel("../Data-Sharing-Policies_2016-08-05.xlsx", sheet = "Data",
+exceldat <- read_excel("../Data-Sharing-Policies_2016-10-31.xlsx", sheet = "Data",
                     na = "N/A")
 jdata <- exceldat[-1,] # remove line of info
 jdata <- jdata[-which(is.na(jdata$Journal)),] # remove NAs
@@ -251,21 +251,20 @@ kable(tmp,caption="Citable Items by Year",digits=1)
 
 
 
-## TABLE RESULTS X: Number of journals per data sharing categories
-
+## TABLE: Number of journals per data sharing mark (DSM)
 
 ```{r}
-tmp1 = jdata%>%group_by(dsm,dsm_fac)%>%
-  summarize("N"=n(),"Percent"=100*n()/nrow(jdata)
-            )%>%
+tmp = jdata%>%group_by(dsm,dsm_fac)%>%
+  summarize("N"=n(),"Percent"=100*n()/nrow(jdata))
+
+tmp1 = tmp%>%
   mutate("# Journals (%)" = paste0(N, "\t(",round(Percent,1),"%)"))%>%
   select(-N,-Percent)%>%
   rename("DSM"=dsm,"DSM Description"=dsm_fac)
 kable(tmp1)
-
 ```
 
-## TABLE RESULTS X: Number of journals & Citable Items per data sharing categories
+## TABLE: Publishing Volume by Data Sharing Mark
 
 
 ```{r}
@@ -317,10 +316,119 @@ tmp2 = jdata%>%filter(!Journal=="PLoS One")%>%group_by(dsm,dsm_fac)%>%
 
 tmp3 = left_join(tmp1,tmp2)
 tmp = left_join(tmp,tmp3)
-kable(tmp)
+#kable(tmp)
+
+tmpt = data_frame("DSM Description"="Total",
+           "# Journals (%)"=paste0(nrow(jdata)," (100%)"),
+           "Median # Citable Items per Journal 2013"  =as.character(median(jdata$citable_2013)),
+           "# Citable Items 2013 (%)"=paste0(sum(jdata$citable_2013)," (100%)"),
+           "# Citable Items 2013, Remove PLoS One (%)"=
+             paste0(sum(jdata$citable_2013[!jdata$Journal=="PLoS One"])," (100%)"),
+           "Median # Citable Items per Journal 2014"  =as.character(median(jdata$citable_2014,na.rm=T)),
+          "# Citable Items 2014 (%)"=paste0(sum(jdata$citable_2014,na.rm=T)," (100%)"),
+           "# Citable Items 2014, Remove PLoS One (%)"=
+             paste0(sum(jdata$citable_2014[!jdata$Journal=="PLoS One"],na.rm=T)," (100%)")
+)
+tmpt = bind_rows(tmp,tmpt)
+kable(tmpt)
 
 ```
 
+
+```{r barplot_pct,fig.width=9,fig.height=7,include=FALSE}
+# 2013
+tmp1 = jdata%>%group_by(dsm,dsm_fac)%>%
+  summarize("N_journals"=n(),"Percent_journals"=100*n()/nrow(jdata),
+            "Nc"=sum(citable_2013), 
+            "MedianC"=median(citable_2013,na.rm=T),
+            "PercentC" = 100*sum(citable_2013)/sum(jdata$citable_2013)
+            )
+tmp1$year = "2013"
+tmp1$plos = "with PLoS One"
+
+tmp2 = jdata%>%filter(!Journal=="PLoS One")%>%group_by(dsm,dsm_fac)%>%
+  summarize("N_journals"=n(),"Percent_journals"=100*n()/nrow(jdata),
+            "Nc"=sum(citable_2013), 
+            "MedianC"=median(citable_2013,na.rm=T),
+            "PercentC" = 100*sum(citable_2013)/sum(jdata$citable_2013[!jdata$Journal=="PLoS One"])
+            )
+tmp2$year = "2013"
+tmp2$plos = "without PLoS One"
+
+tmp = bind_rows(tmp1,tmp2)
+
+
+# 2013
+tmp1 = jdata%>%group_by(dsm,dsm_fac)%>%
+  summarize("N_journals"=n(),"Percent_journals"=100*n()/nrow(jdata),
+            "Nc"=sum(citable_2014,na.rm=T), 
+            "MedianC"=median(citable_2014,na.rm=T),
+            "PercentC" = 100*sum(citable_2014,na.rm=T)/sum(jdata$citable_2014,na.rm=T)
+            )
+tmp1$year = "2014"
+tmp1$plos = "with PLoS One"
+
+tmp2 = jdata%>%filter(!Journal=="PLoS One")%>%group_by(dsm,dsm_fac)%>%
+  summarize("N_journals"=n(),"Percent_journals"=100*n()/nrow(jdata),
+            "Nc"=sum(citable_2014,na.rm=T), 
+            "MedianC"=median(citable_2014,na.rm=T),
+            "PercentC" = 100*sum(citable_2014,na.rm=T)/sum(jdata$citable_2014[!jdata$Journal=="PLoS One"],na.rm=T))
+tmp2$year = "2014"
+tmp2$plos = "without PLoS One"
+
+tmp3 = bind_rows(tmp1,tmp2)
+tmp = bind_rows(tmp,tmp3)
+
+tmp_n = tmp%>%select(dsm:Percent_journals,year,plos)%>%rename(N=N_journals,Percent=Percent_journals)
+tmp_n$type = "Journal"
+tmp_n = tmp_n%>%filter(plos=="with PLoS One") # basically the same
+tmp_c = tmp%>%select(dsm,dsm_fac,Nc,PercentC,year,plos)%>%rename(N=Nc,Percent=PercentC)
+tmp_c$type = "Citable Items"
+tmplong = bind_rows(tmp_n,tmp_c)
+tmplong = tmplong%>%unite(type2,type,plos,sep=" ",remove = FALSE)
+tmplong$type2[tmplong$type=="Journal"] = "Journals"
+
+tmplong = tmplong
+tmplong = tmplong%>%filter(year=="2013") #similar by year
+tmplong$type2 = factor(tmplong$type2,levels=c("Journals","Citable Items with PLoS One","Citable Items without PLoS One"))
+
+ggplot(tmplong,aes(x=dsm,y=Percent,fill=dsm_fac,alpha=type2))+geom_bar(stat="identity",position = "dodge") +
+  geom_text(aes(label=paste0(round(Percent,1),"%"),y=Percent),
+            #alpha=1,
+            position=position_dodge(width=0.9),vjust=1.4,size=2,color="black",show.legend = FALSE)+
+  guides(alpha=guide_legend(title="Percent of",ncol=1),
+         fill = guide_legend(title = "Data Sharing Mark", ncol = 1))+
+#  facet_grid(year~.)+
+  scale_alpha_manual(values = c(0.4, 0.6,0.9))+
+  theme_minimal()+xlab("Data Sharing Mark (1-6)")+xlim(as.character(1:6))+ theme(legend.position = "bottom")
+
+```
+
+
+```{r barplot_pct_stacked,fig.width=9,fig.height=7,include=FALSE}
+
+ggplot(tmplong,aes(x=type2,y=Percent,fill=dsm_fac))+geom_bar(stat="identity") +
+  geom_text(aes(label=paste0(round(Percent,1),"%"),y=Percent),
+            #alpha=1,
+            position=position_stack(),vjust=1.4,size=3,color="black",show.legend = FALSE)+
+  guides(alpha=guide_legend(title="Percent of",ncol=1),
+         fill = guide_legend(title = "Data Sharing Mark", ncol = 1))+
+  theme_minimal()+xlab("")+theme(axis.text.x = element_text(angle = 45, hjust = .9))
+```
+
+```{r barplot_pct_stacked_horiz,fig.width=9,fig.height=5}
+tmplong$type1 = factor(tmplong$type2,levels=c("Citable Items without PLoS One","Citable Items with PLoS One","Journals"))
+
+ggplot(tmplong,aes(x=type1,y=Percent,fill=dsm_fac))+geom_bar(stat="identity") +
+  geom_text(aes(label=paste0(round(Percent,1),"%"),y=Percent),
+            #alpha=1,
+            position=position_stack(),hjust=1.2,size=3,color="black",show.legend = FALSE)+
+  guides(alpha=guide_legend(title="Percent of",ncol=1),
+         fill = guide_legend(title = "Data Sharing Mark", ncol = 1))+
+  theme_minimal()+xlab("")+coord_flip()+ theme(legend.position = "bottom")
+  
+
+```
 
 ## TABLE RESULTS X: Number of journals & Citable Items per data sharing 2 categories
 
@@ -573,6 +681,7 @@ tmptab$Overall =  gsub(")","%)",tmptab$Overall)
 kable(tmptab)
 ```
 
+# TABLE: Recommended Data Sharing Method by DSM 1-5
 
 ```{r}
 tmp = with(jdata,table(dsm_fac,rec_pref_sharing_fac))
@@ -589,6 +698,39 @@ for(ii in 2:ncol(tmp)) {
 kable(tmp)
 
 ```
+
+# FIGURE: Recommended Data Sharing Method by DSM 1-5
+
+```{r tile_percent_recDSM, fig.width=9,fig.height=7}
+tmp = with(jdata,table(dsm_fac,rec_pref_sharing_fac))
+tmp = cbind("dsm"=1:6,tmp)
+tmp = tmp[-nrow(tmp),]
+tmp = as_data_frame(tmp)
+tmp[6,] = colSums(tmp)
+tmp[6,1] = "Total"
+tmppct = cbind(tmp[,1],100*tmp[,-1]/rowSums(tmp[,-1]))
+tmpn = tmp
+
+for(ii in 2:ncol(tmp)) {
+  tmp[,ii] = paste0(unlist(tmp[,ii]),"\n(",round(tmppct[,ii],1),"%)")
+}
+tmplonglab = tmp%>%gather(key=type,value=label,-dsm)
+
+tmplong = tmpn%>%gather(key=type,value=n,-dsm)
+tmplong2 = tmppct%>%gather(key=type,value=Percent,-dsm)
+tmplong = left_join(tmplong,tmplong2)
+tmplong = left_join(tmplonglab,tmplong)
+tmplong$type = factor(tmplong$type,
+                      levels=c("Unspecified","Multiple methods equally recommended","By Reader Request to Authors",
+                               "Journal Hosted","Public Online Repository"),
+                      labels=c("Unspecified","Multiple Methods Equally Recommended","By Reader Request to Authors",
+                               "Journal Hosted","Public Online Repository"))
+
+ggplot(tmplong,aes(dsm,type,fill=Percent))+geom_tile(show.legend=FALSE)+geom_text(aes(label=label),color="white")+
+  theme_minimal()+ylab("")+xlab("Data Sharing Mark")+scale_fill_continuous(limits=c(0,100))
+
+```
+
 
 
 ```{r}
