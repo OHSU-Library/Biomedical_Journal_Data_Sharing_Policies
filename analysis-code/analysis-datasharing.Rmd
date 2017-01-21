@@ -1,16 +1,14 @@
 ---
 title: "Data Sharing Policies - Analysis"
 author: "Analysis by Jessica Minnier, OHSU; github:jminnier"
-date: November 3, 2016
+date: December 12, 2016
 output:
   html_document:
     number_sections: yes
     theme: cerulean
     toc: yes
-  word_document:
-    toc: yes
-params:
-  showcode: yes
+    toc_float: yes
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -31,7 +29,7 @@ library(tidyverse)
 library(tableone)
 
 
-knitr::opts_chunk$set(echo = params$showcode, warning = FALSE,message = FALSE,tidy=TRUE,fig.path = "figs/",fig.keep=TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE,message = FALSE,tidy=TRUE,fig.path = "figs/",fig.keep=TRUE)
 
 ```
 
@@ -1328,6 +1326,149 @@ kable(tmpb)
 Of the 318 journals examined, `r sum(jdata$dsm==1)` (`r round(mean(jdata$dsm==1)*100,1)`%) required data sharing as a condition of publication, barring exceptions and `r sum(jdata$dsm==2)` (`r round(mean(jdata$dsm==2)*100,1)`%) required data sharing but made no explicit statement regarding the effect on publication and editorial decisions. `r sum(jdata$dsm==3)` (`r round(mean(jdata$dsm==3)*100,1)`%) journals explicitly encouraged or addressed data sharing, but did not require it. And, `r sum(jdata$dsm==5)` (`r round(mean(jdata$dsm==5)*100,1)`%) journals only addressed data sharing for proteomic, genomic data, or other specific structural data.
 
 In order to understand the potential influence of the policies on the published literature, we also evaluated the distribution of policies by publication volume. In 2013, the total number of citable items (papers) in the studied journals was `r jdata_long%>%filter(year==2013)%>%select(citable_items)%>%sum%>%as.character` (after removing PlOS One), and in 2014 the total number of citable items was `r jdata_long%>%filter(year==2014)%>%select(citable_items)%>%sum%>%as.character` with medians number of citable items per journal of `r jdata_long%>%filter(year==2013)%>%select(citable_items)%>%unlist%>%median(na.rm=T)` and `r jdata_long%>%filter(year==2014)%>%select(citable_items)%>%unlist%>%median(na.rm=T)` respectively. 
+
+
+
+# Sample Representation of All Journals
+
+We can compare sampled journals to non-sampled journals ("out of sample"") or to the entire set of journals ("All Journals").
+
+```{r}
+# read all journal dat (this is not in github repo yet)
+jdata_all <- read_excel("../../Data-Sharing-Policies.xlsx", sheet = "2014 ESI Data",
+                    na = "N/A")
+
+jdata_all = jdata_all%>%rename(Journal=`Full Journal Title`,
+                               if_2014=`Journal Impact Factor`,citable_2014=`Citable Items`,
+                               total_cites_2014=`Total Cites`)
+
+jdata_sample = jdata%>%select(Journal,ISSN,if_2014,citable_2014,total_cites_2014)%>%add_column("in_sample"="Sample")
+```
+
+Note, these journals are in the sampled data but not in the "full data", but they have no data anyway:
+```{r}
+table(jdata_sample$Journal%in%jdata_all$Journal)
+jdata_sample%>%filter(!Journal%in%jdata_all$Journal)%>%kable()
+```
+
+Number of journals in and out of sample (removing journals with missing data):
+
+```{r}
+# for comparing in sample to all journals
+jdata_all_long = jdata_all
+jdata_all_long$in_sample = "All Journals"
+jdata_all_long = bind_rows(jdata_all_long,jdata_sample)
+jdata_all_long = jdata_all_long%>%filter(!is.na(total_cites_2014))
+table(jdata_all_long$in_sample)
+
+# for comparing in sample to out of sample
+jdata_all = left_join(jdata_all,jdata_sample%>%select(-ISSN))
+jdata_all$in_sample[is.na(jdata_all$in_sample)] = "Out of sample"
+jdata_all = jdata_all%>%filter(!is.na(Journal))
+table(jdata_all$in_sample)
+
+```
+
+## Distribution of Impact Factor
+
+```{r}
+ggplot(jdata_all,aes(x=in_sample,y=if_2014,fill=in_sample))+geom_boxplot()+theme_minimal()+ggtitle("Distribution of Impact Factor")
+ggplot(jdata_all_long,aes(x=in_sample,y=if_2014,fill=in_sample))+geom_boxplot()+theme_minimal()+ggtitle("Distribution of Impact Factor")
+
+jdata_all_long%>%group_by(in_sample)%>%
+  summarize_at(vars(if_2014),
+               funs(Min="min",
+                    Q25 = quantile(.,probs=.25),Mean="mean",Median="median",
+                    Q75 = quantile(.,probs=.75),Max="max"),na.rm=T)%>%kable(digits=2)
+
+
+
+```
+
+
+## Distribution of Citable Items
+
+```{r}
+
+ggplot(jdata_all,aes(x=in_sample,y=citable_2014,fill=in_sample))+geom_boxplot()+theme_minimal()+ggtitle("Distribution of Citable Items")
+ggplot(jdata_all%>%filter(citable_2014<20000),aes(x=in_sample,y=citable_2014,fill=in_sample))+geom_boxplot()+theme_minimal()+ggtitle("Distribution of Citable Items (remove Plos One)")
+
+ggplot(jdata_all_long,aes(x=in_sample,y=citable_2014,fill=in_sample))+geom_boxplot()+theme_minimal()+ggtitle("Distribution of Citable Items")
+ggplot(jdata_all_long%>%filter(citable_2014<20000),aes(x=in_sample,y=citable_2014,fill=in_sample))+geom_boxplot()+theme_minimal()+ggtitle("Distribution of Citable Items (remove Plos One)")
+
+
+jdata_all_long%>%group_by(in_sample)%>%
+  summarize_at(vars(citable_2014),
+               funs(Total="sum",Min="min",
+                    Q25 = quantile(.,probs=.25),Mean="mean",Median="median",
+                    Q75 = quantile(.,probs=.75),Max="max"),na.rm=T)%>%kable(digits=2)
+```
+
+## Distribution ofTotal Citations
+
+```{r}
+ggplot(jdata_all,aes(x=in_sample,y=total_cites_2014,fill=in_sample))+geom_boxplot()+theme_minimal()+ggtitle("Distribution of Total Citations")
+ggplot(jdata_all_long,aes(x=in_sample,y=total_cites_2014,fill=in_sample))+geom_boxplot()+theme_minimal()+ggtitle("Distribution of Total Citations")
+
+
+jdata_all_long%>%group_by(in_sample)%>%
+  summarize_at(vars(total_cites_2014),
+               funs(Total="sum",Min="min",
+                    Q25 = quantile(.,probs=.25),Mean="mean",Median="median",
+                    Q75 = quantile(.,probs=.75),Max="max"),na.rm=T)%>%kable(digits=2)
+```
+
+# Publisher Comparison
+
+Number of journals for each publisher, sorted:
+
+```{r}
+table(jdata$Publisher)%>%sort
+```
+
+Filter out publishers with 3 or fewer journals:
+
+```{r}
+tmp = table(jdata$Publisher)
+tmp[tmp>3]%>%sort
+tmpjournals = names(tmp[tmp>3])
+```
+
+Percent of sampled journals in each DSM category by publisher:
+
+```{r}
+library(janitor)
+tmpdat = jdata%>%filter(Publisher%in%tmpjournals)
+tmpout1 = tmpdat%>%tabyl(Publisher)
+tmpout = tmpdat%>%crosstab(Publisher,dsm,"row")
+tmpout2 = tmpout
+tmpout2[,-1] = tmpout2[,-1]*100
+tmpout2 = cbind(tmpout2,"# Journals"=tmpout1[,2])
+kable(tmpout2,digits=1)
+```
+
+Summary of maximum percentages for each publisher:
+```{r}
+summary(apply(tmpout2[,-1],1,max))
+```
+
+Categorize into 2 level data sharing mark:
+
+```{r}
+tmpdat = jdata%>%filter(Publisher%in%tmpjournals)
+tmpout = tmpdat%>%crosstab(Publisher,dsm2,"row")
+tmpout1 = tmpdat%>%tabyl(Publisher)
+tmpout2 = tmpout
+tmpout2[,-1] = tmpout2[,-1]*100
+tmpout2 = cbind(tmpout2,"# Journals"=tmpout1[,2])
+kable(tmpout2,digits=1)
+```
+
+Summary of maximum percentages for each publisher:
+```{r}
+summary(apply(tmpout2[,-1],1,max))
+```
+
 
 
 # Session Info
