@@ -4913,8 +4913,7 @@ kable(tmpb)</code></pre>
 <div id="sample-representation-of-all-journals" class="section level1">
 <h1><span class="header-section-number">5</span> Sample Representation of All Journals</h1>
 <p>We can compare sampled journals to non-sampled journals (“out of sample”“) or to the entire set of journals (”All Journals“).</p>
-<pre class="r"><code># read all journal dat (this is not in github repo yet)
-jdata_all &lt;- read_excel(&quot;../../Data-Sharing-Policies.xlsx&quot;, sheet = &quot;2014 ESI Data&quot;, 
+<pre class="r"><code>jdata_all &lt;- read_excel(&quot;../Data-Sharing-Policies_2017-01-18.xlsx&quot;, sheet = &quot;2014 ESI Data&quot;, 
     na = &quot;N/A&quot;)
 
 jdata_all = jdata_all %&gt;% rename(Journal = `Full Journal Title`, if_2014 = `Journal Impact Factor`, 
@@ -5158,6 +5157,47 @@ table(jdata_all$in_sample)</code></pre>
 <td align="right">25746.95</td>
 <td align="right">10126.5</td>
 <td align="right">22129.25</td>
+<td align="right">617363</td>
+</tr>
+</tbody>
+</table>
+<p>After removing PLoS One:</p>
+<pre class="r"><code>jdata_all_long %&gt;% filter(!Journal == &quot;PLoS One&quot;) %&gt;% group_by(in_sample) %&gt;% 
+    summarize_at(vars(total_cites_2014), funs(Total = &quot;sum&quot;, Min = &quot;min&quot;, Q25 = quantile(., 
+        probs = 0.25), Mean = &quot;mean&quot;, Median = &quot;median&quot;, Q75 = quantile(., probs = 0.75), 
+        Max = &quot;max&quot;), na.rm = T) %&gt;% kable(digits = 2)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">in_sample</th>
+<th align="right">Total</th>
+<th align="right">Min</th>
+<th align="right">Q25</th>
+<th align="right">Mean</th>
+<th align="right">Median</th>
+<th align="right">Q75</th>
+<th align="right">Max</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">All Journals</td>
+<td align="right">10800200</td>
+<td align="right">5</td>
+<td align="right">927.5</td>
+<td align="right">9246.75</td>
+<td align="right">2621</td>
+<td align="right">7392.5</td>
+<td align="right">617363</td>
+</tr>
+<tr class="even">
+<td align="left">Sample</td>
+<td align="right">7803321</td>
+<td align="right">384</td>
+<td align="right">4505.0</td>
+<td align="right">24772.45</td>
+<td align="right">10099</td>
+<td align="right">21813.5</td>
 <td align="right">617363</td>
 </tr>
 </tbody>

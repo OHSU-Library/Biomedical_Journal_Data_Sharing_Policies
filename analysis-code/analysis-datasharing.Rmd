@@ -1636,8 +1636,7 @@ with median numbers of citable items per journal of
 We can compare sampled journals to non-sampled journals ("out of sample"") or to the entire set of journals ("All Journals").
 
 ```{r}
-# read all journal dat (this is not in github repo yet)
-jdata_all <- read_excel("../../Data-Sharing-Policies.xlsx", sheet = "2014 ESI Data",
+jdata_all <- read_excel("../Data-Sharing-Policies_2017-01-18.xlsx", sheet = "2014 ESI Data",
                     na = "N/A")
 
 jdata_all = jdata_all%>%rename(Journal=`Full Journal Title`,
@@ -1710,8 +1709,6 @@ After removing PLoS One:
 
 ```{r}
 
-
-
 jdata_all_long%>%filter(!Journal=="PLoS One")%>%group_by(in_sample)%>%
   summarize_at(vars(citable_2014),
                funs(Min="min",
@@ -1730,6 +1727,18 @@ ggplot(jdata_all_long,aes(x=in_sample,y=total_cites_2014,fill=in_sample))+geom_b
 
 
 jdata_all_long%>%group_by(in_sample)%>%
+  summarize_at(vars(total_cites_2014),
+               funs(Total="sum",Min="min",
+                    Q25 = quantile(.,probs=.25),Mean="mean",Median="median",
+                    Q75 = quantile(.,probs=.75),Max="max"),na.rm=T)%>%kable(digits=2)
+```
+
+
+
+After removing PLoS One:
+
+```{r}
+jdata_all_long%>%filter(!Journal=="PLoS One")%>%group_by(in_sample)%>%
   summarize_at(vars(total_cites_2014),
                funs(Total="sum",Min="min",
                     Q25 = quantile(.,probs=.25),Mean="mean",Median="median",
