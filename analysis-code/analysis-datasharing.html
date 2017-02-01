@@ -5642,8 +5642,163 @@ kable(tmpout2, digits = 1)</code></pre>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   81.40   92.50  100.00   96.41  100.00  100.00</code></pre>
 </div>
+<div id="curator-reliability" class="section level1">
+<h1><span class="header-section-number">7</span> Curator Reliability</h1>
+<pre class="r"><code>cdata1 &lt;- read_excel(&quot;../DSP_Curator_Check.xlsx&quot;, sheet = &quot;Curator Data&quot;)
+cdata0 &lt;- read_excel(&quot;../DSP_Curator_Check.xlsx&quot;, sheet = &quot;Original Data&quot;)
+cdata1 &lt;- cdata1[-1, ]
+cdata0 &lt;- cdata0[-1, ]
+
+
+
+cdata1_all = cdata1 %&gt;% clean_names() %&gt;% remove_empty_rows() %&gt;% select(journal, 
+    open_access_mark, data_sharing_mark:reproducibility_noted_mark)
+cdata0_all = cdata0 %&gt;% clean_names() %&gt;% remove_empty_rows() %&gt;% select(journal, 
+    open_access_mark, data_sharing_mark:reproducibility_noted_mark)
+
+cdata0_all = data.frame(cdata0_all)
+
+cdata0_all[which(cdata0_all == &quot;a\n&quot;, arr.ind = T)] = &quot;a&quot;
+cdata0_all[which(cdata0_all == &quot;b\n&quot;, arr.ind = T)] = &quot;b&quot;
+
+
+cdata1_all = data.frame(cdata1_all)
+
+cdata1_all[which(cdata1_all == &quot;a\n&quot;, arr.ind = T)] = &quot;a&quot;
+cdata1_all[which(cdata1_all == &quot;b\n&quot;, arr.ind = T)] = &quot;b&quot;
+
+allvars = colnames(cdata1_all)[-1]</code></pre>
+<p>For each we have a table of agreement, the % agreement and Cohen’s Kappa.</p>
+<pre class="r"><code>restable = NULL
+for (tmpvar in allvars) {
+    tmp0 = cdata0_all %&gt;% select(journal, contains(tmpvar))
+    tmp1 = cdata1_all %&gt;% select(journal, contains(tmpvar))
+    colnames(tmp0)[2] = &quot;var_orig&quot;
+    colnames(tmp1)[2] = &quot;var_new&quot;
+    newdat = left_join(tmp1, tmp0)
+    newdat = na.omit(newdat)
+    mytab = table(newdat[, -1])
+    print(tmpvar)
+    print(mytab)
+    
+    res = data_frame(Score = tmpvar, `# Journals` = nrow(newdat), `% Agreement` = 100 * 
+        sum(diag(mytab))/nrow(newdat), `Cohen's Kappa` = kappa2(newdat[, -1])$value)
+    restable = bind_rows(restable, res)
+    
+    
+}</code></pre>
+<pre><code>## [1] &quot;open_access_mark&quot;
+##        var_orig
+## var_new 0.0 1.0
+##     0.0  35   0
+##     1.0   0   5
+## [1] &quot;data_sharing_mark&quot;
+##        var_orig
+## var_new  1  2  3  4  5  6
+##       1  7  2  0  0  1  0
+##       2  0  2  0  0  0  0
+##       3  0  0 10  0  0  0
+##       4  0  0  0  1  0  0
+##       5  0  0  0  0  9  0
+##       6  0  0  0  0  0  8
+## [1] &quot;protein_proteomic_genomic_or_microaray_sequence_or_structural_data_sharing_addressed_required_with_deposit_to_specific_data_banks&quot;
+##        var_orig
+## var_new  a  b
+##       a 23  0
+##       b  0 17
+## [1] &quot;recommended_preferred_sharing_mark&quot;
+##        var_orig
+## var_new  A  B  D  E
+##       A 21  0  0  0
+##       B  0  7  0  0
+##       D  1  0  1  0
+##       E  0  0  0 10
+## [1] &quot;size_guidelines_if_journal_hosted_provided&quot;
+##        var_orig
+## var_new  b  c
+##       b  1  0
+##       c  1 11
+## [1] &quot;copyright_licensing_mark&quot;
+##        var_orig
+## var_new  a  b
+##       a  1  0
+##       b  0 39
+## [1] &quot;archival_retention_mark&quot;
+##        var_orig
+## var_new a   b
+##      a   1  1
+##      b   0 38
+## [1] &quot;reproducibility_noted_mark&quot;
+##        var_orig
+## var_new  a  b
+##       a  6  1
+##       b  2 31</code></pre>
+<pre class="r"><code>restable$Score = gsub(&quot;_&quot;, &quot; &quot;, restable$Score)
+
+kable(restable, digits = 3)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Score</th>
+<th align="right"># Journals</th>
+<th align="right">% Agreement</th>
+<th align="right">Cohen’s Kappa</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">open access mark</td>
+<td align="right">40</td>
+<td align="right">100.000</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="even">
+<td align="left">data sharing mark</td>
+<td align="right">40</td>
+<td align="right">92.500</td>
+<td align="right">0.905</td>
+</tr>
+<tr class="odd">
+<td align="left">protein proteomic genomic or microaray sequence or structural data sharing addressed required with deposit to specific data banks</td>
+<td align="right">40</td>
+<td align="right">100.000</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="even">
+<td align="left">recommended preferred sharing mark</td>
+<td align="right">40</td>
+<td align="right">97.500</td>
+<td align="right">0.959</td>
+</tr>
+<tr class="odd">
+<td align="left">size guidelines if journal hosted provided</td>
+<td align="right">13</td>
+<td align="right">92.308</td>
+<td align="right">0.629</td>
+</tr>
+<tr class="even">
+<td align="left">copyright licensing mark</td>
+<td align="right">40</td>
+<td align="right">100.000</td>
+<td align="right">1.000</td>
+</tr>
+<tr class="odd">
+<td align="left">archival retention mark</td>
+<td align="right">40</td>
+<td align="right">97.500</td>
+<td align="right">0.655</td>
+</tr>
+<tr class="even">
+<td align="left">reproducibility noted mark</td>
+<td align="right">40</td>
+<td align="right">92.500</td>
+<td align="right">0.754</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div id="session-info" class="section level1">
-<h1><span class="header-section-number">7</span> Session Info</h1>
+<h1><span class="header-section-number">8</span> Session Info</h1>
 <p>This analysis was performed in R/Rstudio using knitr with the following session:</p>
 <pre class="r"><code>devtools::session_info()</code></pre>
 <pre><code>##  setting  value                       
@@ -5653,7 +5808,7 @@ kable(tmpout2, digits = 1)</code></pre>
 ##  language (EN)                        
 ##  collate  en_US.UTF-8                 
 ##  tz       America/Los_Angeles         
-##  date     2017-01-21                  
+##  date     2017-01-27                  
 ## 
 ##  package    * version date       source                        
 ##  assertthat   0.1     2013-12-06 CRAN (R 3.2.0)                
@@ -5669,11 +5824,13 @@ kable(tmpout2, digits = 1)</code></pre>
 ##  gtable       0.2.0   2016-02-26 CRAN (R 3.2.3)                
 ##  highr        0.6     2016-05-09 CRAN (R 3.2.5)                
 ##  htmltools    0.3.5   2016-03-21 CRAN (R 3.2.4)                
+##  irr        * 0.84    2012-07-16 CRAN (R 3.2.0)                
 ##  janitor    * 0.2.1   2016-10-31 CRAN (R 3.2.1)                
 ##  knitr      * 1.14    2016-08-13 CRAN (R 3.2.5)                
 ##  labeling     0.3     2014-08-23 CRAN (R 3.2.0)                
 ##  lattice      0.20-33 2015-07-14 CRAN (R 3.2.1)                
 ##  lazyeval     0.2.0   2016-06-12 CRAN (R 3.2.5)                
+##  lpSolve    * 5.6.13  2015-09-19 CRAN (R 3.2.3)                
 ##  magrittr   * 1.5     2014-11-22 CRAN (R 3.2.0)                
 ##  Matrix       1.2-6   2016-05-02 CRAN (R 3.2.5)                
 ##  memoise      1.0.0   2016-01-29 CRAN (R 3.2.3)                

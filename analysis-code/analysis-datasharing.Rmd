@@ -1,14 +1,16 @@
 ---
 title: "Data Sharing Policies - Analysis"
 author: "Analysis by Jessica Minnier, OHSU; github:jminnier"
-date: January 21, 2017
+date: "January 21, 2017"
 output:
+  word_document:
+    toc: yes
   html_document:
+    code_folding: hide
     number_sections: yes
     theme: cerulean
     toc: yes
     toc_float: yes
-    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -28,9 +30,10 @@ library(readxl)
 library(tidyverse)
 library(tableone)
 library(magrittr)
+library(irr)
+library(janitor)
 
-
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE,message = FALSE,tidy=TRUE,fig.path = "figs/",fig.keep=TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, tidy=TRUE, message = FALSE,fig.path = "figs/",fig.keep=TRUE)
 
 ```
 
@@ -1796,6 +1799,63 @@ Summary of maximum percentages for each publisher:
 summary(apply(tmpout2[,-1],1,max))
 ```
 
+# Curator Reliability
+
+```{r}
+cdata1 <- read_excel("../DSP_Curator_Check.xlsx",sheet = "Curator Data")
+cdata0 <- read_excel("../DSP_Curator_Check.xlsx",sheet = "Original Data")
+cdata1 <- cdata1[-1,]
+cdata0 <- cdata0[-1,]
+
+
+
+cdata1_all = cdata1%>%clean_names()%>%remove_empty_rows()%>%
+  select(journal,open_access_mark,data_sharing_mark:reproducibility_noted_mark)
+cdata0_all = cdata0%>%clean_names()%>%remove_empty_rows()%>%
+  select(journal,open_access_mark,data_sharing_mark:reproducibility_noted_mark)
+
+cdata0_all = data.frame(cdata0_all)
+
+cdata0_all[which(cdata0_all=="a\n",arr.ind=T)] = "a"
+cdata0_all[which(cdata0_all=="b\n",arr.ind=T)] = "b"
+
+
+cdata1_all = data.frame(cdata1_all)
+
+cdata1_all[which(cdata1_all=="a\n",arr.ind=T)] = "a"
+cdata1_all[which(cdata1_all=="b\n",arr.ind=T)] = "b"
+
+allvars = colnames(cdata1_all)[-1]
+```
+
+For each we have a table of agreement, the % agreement and Cohen's Kappa.
+
+
+```{r}
+restable = NULL
+for(tmpvar in allvars) {
+  tmp0 = cdata0_all%>%select(journal,contains(tmpvar))
+  tmp1 = cdata1_all%>%select(journal,contains(tmpvar))
+  colnames(tmp0)[2] = "var_orig"
+  colnames(tmp1)[2] = "var_new"
+  newdat = left_join(tmp1,tmp0)
+  newdat = na.omit(newdat)
+  mytab = table(newdat[,-1])
+  print(tmpvar)
+  print(mytab)
+  
+  res = data_frame("Score"=tmpvar,
+                   "# Journals"=nrow(newdat),
+                   "% Agreement"=100*sum(diag(mytab))/nrow(newdat),
+                   "Cohen's Kappa"=kappa2(newdat[,-1])$value)
+  restable = bind_rows(restable,res)
+  
+  
+}
+restable$Score = gsub("_"," ",restable$Score)
+
+kable(restable,digits=3)
+```
 
 
 # Session Info
