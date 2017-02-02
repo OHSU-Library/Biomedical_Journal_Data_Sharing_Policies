@@ -1,14 +1,14 @@
 ---
 title: "Data Sharing Policies - Analysis"
 author: "Analysis by Jessica Minnier, OHSU; github:jminnier"
-date: January 21, 2017
+date: "February 2, 2017"
 output:
   html_document:
+    code_folding: hide
     number_sections: yes
     theme: cerulean
     toc: yes
     toc_float: yes
-    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -28,9 +28,10 @@ library(readxl)
 library(tidyverse)
 library(tableone)
 library(magrittr)
+library(irr)
+library(janitor)
 
-
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE,message = FALSE,tidy=TRUE,fig.path = "figs/",fig.keep=TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, tidy=TRUE, message = FALSE,fig.path = "figs/",fig.keep=TRUE)
 
 ```
 
@@ -42,7 +43,7 @@ Note, the abbreviation DSM denotes "Data Sharing Mark" and OAM denotes "Open Acc
 
 ```{r data_process}
 # read journal data
-exceldat <- read_excel("../Data-Sharing-Policies_2017-01-18.xlsx", sheet = "Data",
+exceldat <- read_excel("../Data-Sharing-Policies_2017-01-25.xlsx", sheet = "Data",
                     na = "N/A")
 jdata <- exceldat[-1,] # remove line of info
 jdata <- jdata[-which(is.na(jdata$Journal)),] # remove NAs
@@ -481,6 +482,34 @@ ggplot(tmplong,aes(x=type1,y=Percent,fill=dsm_fac))+geom_bar(stat="identity") +
 
 ```
 
+## FIGURE 1 - Percentage of journals per each data sharing mark (DSM).
+
+The top bar shows the percentage of all journals for each data sharing mark. The middle bar
+shows the percentage of citable items from each journal (including PLoS One) for each data
+sharing mark. The lower bar shows the percentage of citable items for each journal
+(excluding PLoS One) for each data sharing mark. Because of the journal PLoS One’s high
+publishing activity, we analyzed the percentage of citable items for each data sharing mark
+including and excluding PLoS One. The shades from dark to light represent DSM 1-6.
+
+```{r fig1_barplot_pct_stacked_horiz,fig.width=9,fig.height=4,dpi=500}
+tmplong$type1 = factor(tmplong$type2,levels=c("Citable Items without PLoS One","Citable Items with PLoS One","Journals"))
+tmplong$dsm_fac_reverse = factor(tmplong$dsm_fac,levels=levels(tmplong$dsm_fac)[6:1])
+
+ggplot(tmplong,aes(x=type1,y=Percent,fill=dsm_fac_reverse))+geom_bar(stat="identity") +
+  geom_text(aes(label=paste0(round(Percent,1),"%"),y=Percent),
+            #alpha=1,
+            position=position_stack(),hjust=1.2,size=3,color="black",show.legend = FALSE)+
+  #scale_fill_brewer(palette="Greys")+
+  scale_fill_manual(values = RColorBrewer::brewer.pal(n=7, name="Blues")[1:6],
+                    breaks=levels(tmplong$dsm_fac),
+                    #labels=levels(tmplong$dsm_fac))+
+                      labels=paste(1:6,levels(tmplong$dsm_fac)))+
+  guides(fill = guide_legend(title = "Data Sharing Mark", ncol = 1))+
+  theme_minimal()+xlab("")+coord_flip()+ theme(legend.position = "bottom")
+  
+
+```
+
 ## TABLE RESULTS X: Number of journals & Citable Items per data sharing 2 categories
 
 
@@ -806,13 +835,13 @@ kable(tmp)
 
 ## FIGURE: Recommended Data Sharing Method by DSM 1-5
 
-```{r tile_percent_recDSM, fig.width=9,fig.height=7}
+```{r fig2_tile_percent_recDSM_2, fig.width=9,fig.height=7,dpi=400}
 tmp = with(jdata,table(dsm_fac,rec_pref_sharing_fac))
 tmp = cbind("dsm"=1:6,tmp)
 tmp = tmp[-nrow(tmp),]
 tmp = as_data_frame(tmp)
 tmp[6,] = colSums(tmp)
-tmp[6,1] = "Total"
+tmp[6,1] = "Total (DSM 1-5)"
 tmppct = cbind(tmp[,1],100*tmp[,-1]/rowSums(tmp[,-1]))
 tmpn = tmp
 
@@ -831,10 +860,28 @@ tmplong$type = factor(tmplong$type,
                       labels=c("Unspecified","Multiple Methods Equally Recommended","By Reader Request to Authors",
                                "Journal Hosted","Public Online Repository"))
 
-ggplot(tmplong,aes(dsm,type,fill=Percent))+geom_tile(show.legend=FALSE)+geom_text(aes(label=label),color="white")+
+ggplot(tmplong,aes(dsm,type,fill=Percent))+geom_tile(show.legend=TRUE)+geom_text(aes(label=label),color="white")+
   theme_minimal()+ylab("")+xlab("Data Sharing Mark")+scale_fill_continuous(limits=c(0,100))
 
 ```
+
+## FIGURE 3: Recommended data sharing method by data sharing mark (DSM) 1-5.
+
+The number (percent) of journals with each recommended data sharing method is represented by each tile, with darker shades denoting higher percentages of journals with the given data sharing method.
+
+```{r fig3_tile_percent_recDSM, fig.width=9,fig.height=7,dpi=400}
+tmplong$lowpct = factor(1*tmplong$Percent<25)
+ggplot(tmplong,aes(dsm,type,fill=Percent))+
+  geom_tile(show.legend=TRUE)+geom_text(aes(label=label,color=lowpct),show.legend = FALSE)+
+  theme_minimal()+ylab("")+xlab("Data Sharing Mark")+
+  scale_color_manual(values=c("White","Black"))+
+  guides(color="none",label="none")+
+  scale_fill_continuous(limits=c(0,100),low=RColorBrewer::brewer.pal(n=7, name="Blues")[1],high=RColorBrewer::brewer.pal(n=7, name="Blues")[7])
+
+```
+
+
+
 
 
 
@@ -966,6 +1013,8 @@ We can also visualize the distribution with a boxplot of IF by DSM type.
 
 *Boxplot description*: The lower and upper "hinges" correspond to the first and third quartiles (the 25th and 75th percentiles). The upper whisker extends from the hinge to the highest value that is within 1.5 * IQR of the hinge, where IQR is the inter-quartile range, or distance between the first and third quartiles. The lower whisker extends from the hinge to the lowest value within 1.5 * IQR of the hinge. Data beyond the end of the whiskers are outliers and plotted as points (as specified by Tukey). (from `geom_boxplot` help page in the R `ggplot2` package.) The Triangle represents the mean.
 
+
+
 ```{r boxplot_if_dsm_1314,fig.width=9,fig.height=7}
 ggplot(jdata_long%>%filter(year!=2015),aes(x=dsm,y=impact_factor,fill=dsm_fac,alpha=year))+
   geom_boxplot(position=position_dodge(.9))+theme_minimal()+
@@ -990,6 +1039,37 @@ ggplot(jdata_long,aes(x=dsm,y=impact_factor,fill=dsm_fac,alpha=year))+
   scale_shape_manual(values = 2)+
   guides(alpha="none",shape="none",fill=guide_legend(title="Data Sharing Mark",ncol=1))+
   xlab("Data Sharing Mark (1-6), Year (2013-2015 light-dark)")+
+  ylab("Impact Factor")+
+  #ggtitle("Boxplot of Impact Factor by Data Sharing Mark")+
+  scale_x_continuous(breaks=1:6)+
+  theme(legend.position="bottom")
+```
+
+## FIGURE 2: Impact factors were higher for journals with the strongest data sharing policies (DSM 1) compared to journals with no mention of data sharing (DSM 6).
+
+The median Impact Factor was calculated for the journals with each data sharing mark for
+each report year (light color=2013, dark color=2014). The lower and upper hinges of the
+boxplots represent the first and third quartiles of journal Impact Factor, the horizontal line
+represents the median, the triangle represents the mean, and the upper and lower whiskers
+extend from the hinge to the highest (lowest) value that is within 1.5 times the interquartile
+range of the hinge, with journals outside this range represented as points.
+
+```{r fig2_boxplot_if_dsm_1314,fig.width=9,fig.height=7,dpi=500}
+tmplong = jdata_long%>%filter(year!=2015)
+tmplong$dsm_fac_reverse = factor(tmplong$dsm_fac,levels=levels(tmplong$dsm_fac)[6:1])
+ggplot(tmplong,aes(x=dsm,y=impact_factor,alpha=year,fill=dsm_fac_reverse))+
+  geom_boxplot(position=position_dodge(.9))+theme_minimal()+
+  scale_alpha_manual(values=c(0.7,0.9))+ 
+  stat_summary(fun.y=mean,geom="point",position=position_dodge(.9),
+               aes(x=dsm,y=impact_factor,shape="triangle"))+
+  scale_shape_manual(values = 2)+
+  scale_fill_manual(values = RColorBrewer::brewer.pal(n=7, name="Blues")[2:7],
+                    #values=RColorBrewer::brewer.pal(n=6,name="Blues"),
+                    breaks=levels(tmplong$dsm_fac),
+                    labels=paste(1:6,levels(tmplong$dsm_fac)))+
+  guides(alpha="none",shape="none",
+         fill=guide_legend(title="Data Sharing Mark",ncol=1))+
+  xlab("Data Sharing Mark (1-6), Year (2013 light, 2014 dark)")+
   ylab("Impact Factor")+
   #ggtitle("Boxplot of Impact Factor by Data Sharing Mark")+
   scale_x_continuous(breaks=1:6)+
@@ -1636,7 +1716,7 @@ with median numbers of citable items per journal of
 We can compare sampled journals to non-sampled journals ("out of sample"") or to the entire set of journals ("All Journals").
 
 ```{r}
-jdata_all <- read_excel("../Data-Sharing-Policies_2017-01-18.xlsx", sheet = "2014 ESI Data",
+jdata_all <- read_excel("../Data-Sharing-Policies_2017-01-25.xlsx", sheet = "2014 ESI Data",
                     na = "N/A")
 
 jdata_all = jdata_all%>%rename(Journal=`Full Journal Title`,
@@ -1796,6 +1876,63 @@ Summary of maximum percentages for each publisher:
 summary(apply(tmpout2[,-1],1,max))
 ```
 
+# Curator Reliability
+
+```{r}
+cdata1 <- read_excel("../Data-Sharing-Policies_2017-01-25.xlsx",sheet = "Curator Data")
+cdata0 <- read_excel("../Data-Sharing-Policies_2017-01-25.xlsx",sheet = "Data")
+cdata1 <- cdata1[-1,]
+cdata0 <- cdata0[-1,]
+
+
+
+cdata1_all = cdata1%>%clean_names()%>%remove_empty_rows()%>%
+  select(journal,open_access_mark,data_sharing_mark:reproducibility_noted_mark)
+cdata0_all = cdata0%>%clean_names()%>%remove_empty_rows()%>%
+  select(journal,open_access_mark,data_sharing_mark:reproducibility_noted_mark)
+
+cdata0_all = data.frame(cdata0_all)
+
+cdata0_all[which(cdata0_all=="a\n",arr.ind=T)] = "a"
+cdata0_all[which(cdata0_all=="b\n",arr.ind=T)] = "b"
+
+
+cdata1_all = data.frame(cdata1_all)
+
+cdata1_all[which(cdata1_all=="a\n",arr.ind=T)] = "a"
+cdata1_all[which(cdata1_all=="b\n",arr.ind=T)] = "b"
+
+allvars = colnames(cdata1_all)[-1]
+```
+
+For each we have a table of agreement, the % agreement and Cohen's Kappa.
+
+
+```{r}
+restable = NULL
+for(tmpvar in allvars) {
+  tmp0 = cdata0_all%>%select(journal,contains(tmpvar))
+  tmp1 = cdata1_all%>%select(journal,contains(tmpvar))
+  colnames(tmp0)[2] = "var_orig"
+  colnames(tmp1)[2] = "var_new"
+  newdat = left_join(tmp1,tmp0)
+  newdat = na.omit(newdat)
+  mytab = table(newdat[,-1])
+  print(tmpvar)
+  print(mytab)
+  
+  res = data_frame("Score"=tmpvar,
+                   "# Journals"=nrow(newdat),
+                   "% Agreement"=100*sum(diag(mytab))/nrow(newdat),
+                   "Cohen's Kappa"=kappa2(newdat[,-1])$value)
+  restable = bind_rows(restable,res)
+  
+  
+}
+restable$Score = gsub("_"," ",restable$Score)
+
+kable(restable,digits=3)
+```
 
 
 # Session Info
