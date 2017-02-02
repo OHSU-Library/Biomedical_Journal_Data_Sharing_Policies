@@ -43,7 +43,7 @@ Note, the abbreviation DSM denotes "Data Sharing Mark" and OAM denotes "Open Acc
 
 ```{r data_process}
 # read journal data
-exceldat <- read_excel("../Data-Sharing-Policies_2017-01-18.xlsx", sheet = "Data",
+exceldat <- read_excel("../Data-Sharing-Policies_2017-01-25.xlsx", sheet = "Data",
                     na = "N/A")
 jdata <- exceldat[-1,] # remove line of info
 jdata <- jdata[-which(is.na(jdata$Journal)),] # remove NAs
@@ -1716,7 +1716,7 @@ with median numbers of citable items per journal of
 We can compare sampled journals to non-sampled journals ("out of sample"") or to the entire set of journals ("All Journals").
 
 ```{r}
-jdata_all <- read_excel("../Data-Sharing-Policies_2017-01-18.xlsx", sheet = "2014 ESI Data",
+jdata_all <- read_excel("../Data-Sharing-Policies_2017-01-25.xlsx", sheet = "2014 ESI Data",
                     na = "N/A")
 
 jdata_all = jdata_all%>%rename(Journal=`Full Journal Title`,
@@ -1879,8 +1879,8 @@ summary(apply(tmpout2[,-1],1,max))
 # Curator Reliability
 
 ```{r}
-cdata1 <- read_excel("../DSP_Curator_Check.xlsx",sheet = "Curator Data")
-cdata0 <- read_excel("../DSP_Curator_Check.xlsx",sheet = "Original Data")
+cdata1 <- read_excel("../Data-Sharing-Policies_2017-01-25.xlsx",sheet = "Curator Data")
+cdata0 <- read_excel("../Data-Sharing-Policies_2017-01-25.xlsx",sheet = "Data")
 cdata1 <- cdata1[-1,]
 cdata0 <- cdata0[-1,]
 
